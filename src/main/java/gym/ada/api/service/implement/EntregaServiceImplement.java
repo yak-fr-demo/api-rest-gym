@@ -14,7 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 @Service
 public class EntregaServiceImplement implements IEntregaService {
 
@@ -103,22 +104,24 @@ public class EntregaServiceImplement implements IEntregaService {
                 .toList();
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public AsignacionEntregaResponseDto obtenerPorPedido(
-            Long pedidoId
-    ) {
 
-        AsignacionEntrega asignacion =
-                asignacionRepository.findByPedidoId(pedidoId)
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "Este pedido no tiene entrega asignada"
-                                )
-                        );
+@Override
+@Transactional(readOnly = true)
+public AsignacionEntregaResponseDto obtenerPorPedido(
+        Long pedidoId
+) {
+    AsignacionEntrega asignacion =
+            asignacionRepository.findByPedidoId(pedidoId)
+                    .orElseThrow(() ->
+                            new ResponseStatusException(
+                                    HttpStatus.NOT_FOUND,
+                                    "Este pedido no tiene entrega asignada"
+                            )
+                    );
 
-        return convertirRespuesta(asignacion);
-    }
+    return convertirRespuesta(asignacion);
+}
+
 
     private AsignacionEntregaResponseDto convertirRespuesta(
             AsignacionEntrega asignacion
